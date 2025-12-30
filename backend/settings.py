@@ -1,20 +1,18 @@
 """
 Django settings for backend project.
-VERSIÓN FUNCIONAL PARA RENDER
+VERSIÓN ULTRA SIMPLE PARA RENDER FREE
 """
 
 from pathlib import Path
 import os
 
-# Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security
-SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-this')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-key-123-change-in-production')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = ['*']
 
-# CORS
+# CORS - PERMITE TODO
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
@@ -31,7 +29,6 @@ INSTALLED_APPS = [
     'mis_salidas',
 ]
 
-# Middleware
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -46,7 +43,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
-# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -65,7 +61,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-# Database - SQLite para Render Free
+# ⚡ DATABASE SIMPLE - SQLite (funciona en Render Free)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
