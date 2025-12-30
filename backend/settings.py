@@ -1,17 +1,17 @@
 """
 Django settings for backend project.
-VERSIÓN COMPLETA - FUNCIONA 100%
+VERSIÓN CORREGIDA PARA RENDER
 """
 
 from pathlib import Path
-import os  # <-- AGREGAR ESTA LÍNEA
+import os
 
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start
-SECRET_KEY = 'django-insecure-sus6sm#l$oyoeezxc+e@@1lvba5f+hlwvmy62nltn#a_hk%b7n'
-DEBUG = True
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-sus6sm#l$oyoeezxc+e@@1lvba5f+hlwvmy62nltn#a_hk%b7n')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 
 # CORS
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -44,7 +45,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
-# TEMPLATES - ¡ESTO ES LO QUE FALTABA!
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -63,15 +64,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-# Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Database - Configuración para Render
+if 'RENDER' in os.environ or 'DATABASE_URL' in os.environ:
+    # Para Render con PostgreSQL
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    # Para desarrollo local con SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
-# Password validators
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -95,6 +108,8 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -104,23 +119,23 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ]
-
-# Agrega al final del archivo, antes de la última línea
-
-# Configuración para producción (Railway)
-if 'DATABASE_URL' in os.environ:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
-
-# WhiteNoise para archivos estáticos
-if not DEBUG:
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 }
+
+# Configuración adicional para Render
+if 'RENDER' in os.environ:
+    # Debug OFF en producción
+    DEBUG = False
+    
+    # Hosts permitidos
+    ALLOWED_HOSTS = [
+        os.environ.get('RENDER_EXTERNAL_HOSTNAME', ''),
+        'localhost',
+        '127.0.0.1',
+    ]
+    
+    # CORS para producción
+    CORS_ALLOWED_ORIGINS = [
+        "https://" + os.environ.get('RENDER_EXTERNAL_HOSTNAME', ''),
+        "http://localhost:5173",
+        "https://*.vercel.app",
+    ]
