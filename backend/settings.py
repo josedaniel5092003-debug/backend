@@ -134,8 +134,43 @@ if 'RENDER' in os.environ:
     ]
     
     # CORS para producción
-    CORS_ALLOWED_ORIGINS = [
-        "https://" + os.environ.get('RENDER_EXTERNAL_HOSTNAME', ''),
-        "http://localhost:5173",
-        "https://*.vercel.app",
-    ]
+    CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:5173",
+    "https://*.vercel.app",
+    "https://*.onrender.com",
+    "https://backenddddd-ws89.onrender.com",
+]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://localhost:\d+$",
+    r"^http://127.0.0.1:\d+$",
+    r"^https://.*\.vercel\.app$",
+    r"^https://.*\.onrender\.com$",
+]
+
+# También permite estos headers
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Métodos permitidos
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
